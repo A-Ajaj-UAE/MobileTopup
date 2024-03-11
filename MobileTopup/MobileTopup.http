@@ -1,0 +1,6 @@
+@MobileTopup_HostAddress = http://localhost:5221
+
+GET {{MobileTopup_HostAddress}}/Topup/
+Accept: application/json
+
+###
