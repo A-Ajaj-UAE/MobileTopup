@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MobileTopup.Contracts.Models;
+using MobileTopup.Contracts.Requests;
+using MobileTopup.Contracts.Response;
 using MobileTopup.Controllers;
 
 namespace MobileTopup.API.Controllers
@@ -19,7 +21,7 @@ namespace MobileTopup.API.Controllers
         }
 
         [HttpGet("{phone}/balance")]
-        [ProducesResponseType(typeof(IEnumerable<Beneficiary>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Account), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public ActionResult Get([FromRoute] string phone)
@@ -35,21 +37,28 @@ namespace MobileTopup.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting beneficiaries");
+                _logger.LogError(ex, "Error getting balance");
                 return BadRequest(ex.Message);
             }
         }
 
 
         [HttpPut("{phone}/debit")]
-        [ProducesResponseType(typeof(IEnumerable<Beneficiary>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BalanceChangeResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-        public ActionResult Debt([FromRoute] string phone)
+        public ActionResult Debt([FromRoute] string phone, [FromBody] DebitRequest request)
         {
             try
             {
-                return Ok();
+                //simulate credit account
+                decimal balance = 5000;
+
+                if (balance - request.Amount < 0)
+                    throw new Exception("insufficient fund");
+
+                var response = new BalanceChangeResponse { OldBalance = balance, NewBalance = balance - request.Amount };
+                return Ok(response);
             }
             catch (KeyNotFoundException ex)
             {
@@ -58,21 +67,24 @@ namespace MobileTopup.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting beneficiaries");
+                _logger.LogError(ex, "Error Debit Account");
                 return BadRequest(ex.Message);
             }
         }
 
 
         [HttpPut("{phone}/credit")]
-        [ProducesResponseType(typeof(IEnumerable<Beneficiary>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BalanceChangeResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-        public ActionResult Credit([FromRoute] string phone)
+        public ActionResult Credit([FromRoute] string phone, [FromBody] CreditRequest request)
         {
             try
             {
-                return Ok();
+                //simulate credit account
+                decimal balance = 5000;
+                var response = new BalanceChangeResponse { OldBalance = balance, NewBalance = balance + request.Amount };
+                return Ok(response);
             }
             catch (KeyNotFoundException ex)
             {
@@ -81,7 +93,7 @@ namespace MobileTopup.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting beneficiaries");
+                _logger.LogError(ex, "Error Credit Account");
                 return BadRequest(ex.Message);
             }
         }
