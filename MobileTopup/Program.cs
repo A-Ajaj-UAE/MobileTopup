@@ -1,12 +1,10 @@
 
 using FluentValidation;
-using Microsoft.EntityFrameworkCore;
 using MobileTopup.API.Repositories;
 using MobileTopup.API.Services;
 using MobileTopup.API.Settings;
 using MobileTopup.Contracts.Models;
 using MobileTopup.Contracts.Validatiors;
-using System.Configuration;
 
 namespace MobileTopup
 {
@@ -33,15 +31,23 @@ namespace MobileTopup
             builder.Services.AddScoped<IMobileTopupService, MobileTopupService>();
             builder.Services.AddScoped<IUserService, UserService>();
 
+            // register settings
+            builder.Services.Configure<BalanceEndpoint>(builder.Configuration.GetSection("BalanceEndpoint"));
+            builder.Services.Configure<TopupSettings>(builder.Configuration.GetSection("TopupSettings"));
+
+
             //register http client
-            builder.Services.AddHttpClient<UserService>();
+            builder.Services.AddHttpClient<IUserService,UserService>((serviceProvider, client) =>
+            {
+                var baseAddress = builder.Configuration.GetSection("BalanceEndpoint").GetValue<string>("BaseAdress");
+                client.BaseAddress = new Uri(baseAddress);
+            });
 
             //register repositories
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<ITopupRepository, TopupRepository>();
 
-            // register settings
-            builder.Services.Configure<TopupSettings>(builder.Configuration.GetSection("TopupSettings"));
+       
 
             var app = builder.Build();
 

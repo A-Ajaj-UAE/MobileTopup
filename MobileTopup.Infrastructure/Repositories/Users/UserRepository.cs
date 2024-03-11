@@ -14,6 +14,7 @@ namespace MobileTopup.API.Repositories
                     PhoneNumber = "1234567890",
                     Name = "John Doe",
                     Remark = "This is active user for active beneficiry",
+                    IsVerified = true,
                     Beneficiaries = new List<Beneficiary>
                     {
                         new Beneficiary

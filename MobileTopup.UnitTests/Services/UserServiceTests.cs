@@ -12,7 +12,7 @@ namespace MobileTopup.UnitTests.Services
     {
         private readonly UserService _userService;
         private readonly Mock<UserRepository> _userRepository;
-        private readonly Mock<IHttpClientFactory> httpClient;   
+        private readonly Mock<HttpClient> httpClient;   
         private readonly Mock<ILogger<UserService>> logger;   
 
         public UserServiceTest()
@@ -20,7 +20,7 @@ namespace MobileTopup.UnitTests.Services
             var userValidator = new UserValidator();
             var BenficiaryValidator = new BeneficiaryValidator();
             _userRepository = new Mock<UserRepository>();
-            httpClient = new Mock<IHttpClientFactory>();
+            httpClient = new Mock<HttpClient>();
             logger = new Mock<ILogger<UserService>>();
             _userService = new UserService(_userRepository.Object,BenficiaryValidator, userValidator, httpClient.Object, logger.Object);
         }

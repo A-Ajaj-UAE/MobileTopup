@@ -14,13 +14,12 @@ namespace MobileTopup.API.Services
         private readonly IValidator<User> userValidator;
         private readonly HttpClient httpClient;
         private readonly ILogger<UserService> logger;
-        private readonly string HOST = "https://localhost:7270/";
 
         public UserService(
             IUserRepository userRepository,
             IValidator<Beneficiary> beneficiaryValidator,
             IValidator<User> userValidator,
-            IHttpClientFactory httpClientFactory,
+            HttpClient httpClient,
             ILogger<UserService> logger
             
             )
@@ -29,7 +28,7 @@ namespace MobileTopup.API.Services
             this.userRepository = userRepository;
             this.beneficiaryValidator = beneficiaryValidator;
             this.logger = logger;
-            this.httpClient = httpClientFactory.CreateClient();
+            this.httpClient = httpClient;
         }
 
         public User GetUserByPhoneNumber(string phoneNumber)
@@ -68,7 +67,7 @@ namespace MobileTopup.API.Services
                 throw new ArgumentNullException(nameof(user));
 
             //read from http client api
-            var response = await httpClient.GetAsync($"{HOST}api/v1/Account/{user.PhoneNumber}/balance");
+            var response = await httpClient.GetAsync($"api/v1/Account/{user.PhoneNumber}/balance");
 
             if (response.IsSuccessStatusCode)
             {
@@ -89,7 +88,7 @@ namespace MobileTopup.API.Services
                 throw new ArgumentNullException(nameof(user));
 
             var payload = new StringContent(JsonConvert.SerializeObject(new { amount }), Encoding.UTF8, "application/json");
-            var response = await httpClient.PutAsync($"{HOST}api/v1/Account/{user.PhoneNumber}/debit", payload);
+            var response = await httpClient.PutAsync($"api/v1/Account/{user.PhoneNumber}/debit", payload);
 
             if (response.IsSuccessStatusCode)
             {
@@ -110,7 +109,7 @@ namespace MobileTopup.API.Services
                 throw new ArgumentNullException(nameof(user));
 
             var payload = new StringContent(JsonConvert.SerializeObject(new { amount }), Encoding.UTF8, "application/json");
-            var response = await httpClient.PutAsync($"{HOST}api/v1/Account/{user.PhoneNumber}/credit", payload);
+            var response = await httpClient.PutAsync($"api/v1/Account/{user.PhoneNumber}/credit", payload);
 
             if (response.IsSuccessStatusCode)
             {
