@@ -2,6 +2,7 @@
 using MobileTopup.API.Repositories;
 using MobileTopup.Contracts.Extensions;
 using MobileTopup.Contracts.Models;
+using MobileTopup.Contracts.Requests;
 using Newtonsoft.Json;
 using System.Text;
 
@@ -87,7 +88,7 @@ namespace MobileTopup.API.Services
             if (user == null)
                 throw new ArgumentNullException(nameof(user));
 
-            var payload = new StringContent(JsonConvert.SerializeObject(new { amount }), Encoding.UTF8, "application/json");
+            var payload = new StringContent(JsonConvert.SerializeObject(new CreditRequest { Amount = amount }), Encoding.UTF8, "application/json");
             var response = await httpClient.PutAsync($"api/v1/Account/{user.PhoneNumber}/debit", payload);
 
             if (response.IsSuccessStatusCode)
@@ -108,7 +109,7 @@ namespace MobileTopup.API.Services
             if (user == null)
                 throw new ArgumentNullException(nameof(user));
 
-            var payload = new StringContent(JsonConvert.SerializeObject(new { amount }), Encoding.UTF8, "application/json");
+            var payload = new StringContent(JsonConvert.SerializeObject(new DebitRequest{ Amount= amount  }), Encoding.UTF8, "application/json");
             var response = await httpClient.PutAsync($"api/v1/Account/{user.PhoneNumber}/credit", payload);
 
             if (response.IsSuccessStatusCode)
