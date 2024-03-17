@@ -7,6 +7,7 @@ using MobileTopup.API.Settings;
 using MobileTopup.Contracts.Domain.Entities;
 using MobileTopup.Contracts.Validatiors;
 using MobileTopup.Infrastructure;
+using MobileTopup.Infrastructure.Repositories;
 
 namespace MobileTopup
 {
@@ -31,7 +32,8 @@ namespace MobileTopup
             //add application db support
             builder.Services.AddDbContext<ApplicationContext>(options =>
             {
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DBConnection"));
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DBConnection"),
+                b => b.MigrationsAssembly("MobileTopup.API"));
             });
 
             // Register validators and services
@@ -53,6 +55,8 @@ namespace MobileTopup
             });
 
             //register repositories
+
+            builder.Services.AddTransient<DbContext, ApplicationContext>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<ITopupRepository, TopupRepository>();
 
