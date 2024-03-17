@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using MobileTopup.API.Repositories;
 using MobileTopup.API.Services;
 using MobileTopup.Contracts.Exceptions;
-using MobileTopup.Contracts.Models;
+using MobileTopup.Contracts.Domain.Entities;
 using MobileTopup.Contracts.Validatiors;
 
 namespace MobileTopup.UnitTests.Services
