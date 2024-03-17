@@ -24,6 +24,6 @@ namespace MobileTopup.Contracts.Domain.Entities
         public DateTime Date { get; set; }
 
         public User User { get; set; }
-        public string UserPhoneNumber { get; set; }
+        public int UserId { get; set; }
     }
 }

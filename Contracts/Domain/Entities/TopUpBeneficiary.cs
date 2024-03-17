@@ -23,6 +23,6 @@ namespace MobileTopup.Contracts.Domain.Entities
         public string PhoneNumber { get; set; }
         public bool IsActive { get; set; }
         public User User { get; set; }
-        public string UserPhoneNumber { get; set; }
+        public int UserId { get; set; }
     }
 }

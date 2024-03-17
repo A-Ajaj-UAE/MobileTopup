@@ -11,7 +11,7 @@ namespace MobileTopup.Contracts.Domain.Entities
         public int Id { get; set; }
         public decimal Balance { get; set; }
         public User User { get; set; }
-        public string UserPhoneNumber { get; set; }
+        public int UserId { get; set; }
         public List<Transaction> Transactions { get; set; }
 
 

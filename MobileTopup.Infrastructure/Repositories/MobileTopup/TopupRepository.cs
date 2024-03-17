@@ -27,7 +27,7 @@ namespace MobileTopup.API.Repositories
                 throw new ArgumentNullException(nameof(phone));
             }
 
-            query = query.Where(b => b.UserPhoneNumber == phone);
+            query = query.Where(b => b.User.PhoneNumber == phone);
 
             query = query.Where(b => b.Date.Month == month && b.Date.Year == year);
 
@@ -43,7 +43,7 @@ namespace MobileTopup.API.Repositories
         {
             var topupHistory = new TopupHistory(request.PhoneNumber, request.Amount, DateTime.UtcNow)
             {
-                UserPhoneNumber = user.PhoneNumber
+                UserId = user.Id
             };
 
             base.Add(topupHistory);
