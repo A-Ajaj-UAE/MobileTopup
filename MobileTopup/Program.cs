@@ -1,10 +1,12 @@
 
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 using MobileTopup.API.Repositories;
 using MobileTopup.API.Services;
 using MobileTopup.API.Settings;
 using MobileTopup.Contracts.Domain.Entities;
 using MobileTopup.Contracts.Validatiors;
+using MobileTopup.Infrastructure;
 
 namespace MobileTopup
 {
@@ -25,6 +27,13 @@ namespace MobileTopup
                 // does not provide an API version.
                 options.AssumeDefaultVersionWhenUnspecified = true;
             });
+
+            //add application db support
+            builder.Services.AddDbContext<ApplicationContext>(options =>
+            {
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DBConnection"));
+            });
+
             // Register validators and services
             builder.Services.AddScoped<IValidator<User>, UserValidator>();
             builder.Services.AddScoped<IValidator<Beneficiary>, BeneficiaryValidator>();
