@@ -1,93 +1,25 @@
-﻿using MobileTopup.Contracts.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using MobileTopup.Contracts.Domain.Entities;
+using MobileTopup.Infrastructure.Repositories;
 
 namespace MobileTopup.API.Repositories
 {
-    public class UserRepository : IUserRepository
+    public class UserRepository : BaseRepository , IUserRepository
     {
-        public IEnumerable<User> GetAvailableUsers()
+        private readonly DbContext _dbContext;
+        public UserRepository(DbContext dbContext) : base(dbContext)
         {
-            //simulate users in db
-            return new List<User>
-            {
-                new User
-                {
-                    PhoneNumber = "1234567890",
-                    Name = "John Doe",
-                    Remark = "This is active user for active beneficiry",
-                    IsVerified = true,
-                    Beneficiaries = new List<Beneficiary>
-                    {
-                        new Beneficiary
-                        {
-                            NickName = "Jane Doe",
-                            Phone = "1234567890",
-                            IsActive = true
-                        }
-                    }
-                },
-                new User
-                {
-                    PhoneNumber = "1234567891",
-                    Name = "Max Doe",
-                    Remark = "This is inactive user for inactive beneficiry",
-                    IsVerified = false,
-                    Beneficiaries = new List<Beneficiary>
-                    {
-                        new Beneficiary
-                        {
-                            NickName = "John Doe",
-                            Phone = "0987654321",
-                            IsActive = false
-                        }
-                    }
-                },
-                new User
-                {
-                    PhoneNumber = "1234567892",
-                    Name = "Max Doe",
-                    Remark = "This is active user for max active beneficiry",
-                    IsVerified = true,
-                    Beneficiaries = new List<Beneficiary>
-                    {
-                        new Beneficiary
-                        {
-                            NickName = "John Doe",
-                            Phone = "0987654321",
-                            IsActive = true
-                        },
-                         new Beneficiary
-                        {
-                            NickName = "John Doe",
-                            Phone = "0987654321",
-                            IsActive = true
-                        },
-                          new Beneficiary
-                        {
-                            NickName = "John Doe",
-                            Phone = "0987654321",
-                            IsActive = true
-                        }, new Beneficiary
-                        {
-                            NickName = "John Doe",
-                            Phone = "0987654321",
-                            IsActive = true
-                        }, new Beneficiary
-                        {
-                            NickName = "John Doe",
-                            Phone = "0987654321",
-                            IsActive = true
-                        }
-                    }
-                }
-            };
+            this._dbContext = dbContext;
+        }
+
+        public async Task<IEnumerable<User>> GetAvailableUsersAsync()
+        {
+            return await base.GetAllAsync<User>();
         }
 
         public User GetUserByPhoneNumber(string phoneNumber)
         {
-            //simulate users from db;
-            var users = GetAvailableUsers();
-
-            var user = users.FirstOrDefault(x => x.PhoneNumber == phoneNumber);
+           var user = _dbContext.Set<User>().FirstOrDefault(u => u.PhoneNumber == phoneNumber);
 
             if (user == null)
                 throw new KeyNotFoundException("User not found");

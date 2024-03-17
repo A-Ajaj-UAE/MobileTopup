@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using MobileTopup.API.Repositories;
 using MobileTopup.Contracts.Extensions;
-using MobileTopup.Contracts.Models;
+using MobileTopup.Contracts.Domain.Entities;
 using MobileTopup.Contracts.Requests;
 using Newtonsoft.Json;
 using System.Text;
@@ -56,9 +56,9 @@ namespace MobileTopup.API.Services
             return user.Beneficiaries ?? new List<Beneficiary>();
         }
 
-        public IEnumerable<User> GetAvailableUsers()
+        public async Task<IEnumerable<User>> GetAvailableUsersAsync()
         {
-           return userRepository.GetAvailableUsers();
+           return await userRepository.GetAvailableUsersAsync();
         }
 
         #region Account from http 3rd party

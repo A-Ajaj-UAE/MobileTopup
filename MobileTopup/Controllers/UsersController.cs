@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MobileTopup.API.Services;
-using MobileTopup.Contracts.Models;
+using MobileTopup.Contracts.Domain.Entities;
 using MobileTopup.Contracts.Response;
 
 namespace MobileTopup.Controllers
@@ -31,7 +31,7 @@ namespace MobileTopup.Controllers
         {
             try
             {
-                var users = userService.GetAvailableUsers();
+                var users = userService.GetAvailableUsersAsync();
 
                 return Ok(users);
             }

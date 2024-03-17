@@ -1,4 +1,4 @@
-﻿using MobileTopup.Contracts.Models;
+﻿using MobileTopup.Contracts.Domain.Entities;
 
 namespace MobileTopup.API.Services
 {
@@ -47,6 +47,6 @@ namespace MobileTopup.API.Services
         /// get available users
         /// </summary>
         /// <returns></returns>
-        IEnumerable<User> GetAvailableUsers();
+        Task<IEnumerable<User>> GetAvailableUsersAsync();
     }
 }

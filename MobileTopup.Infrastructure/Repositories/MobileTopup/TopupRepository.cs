@@ -1,62 +1,53 @@
-﻿using MobileTopup.Contracts.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using MobileTopup.Contracts.Domain.Entities;
 using MobileTopup.Contracts.Requests;
+using MobileTopup.Infrastructure.Repositories;
 
 namespace MobileTopup.API.Repositories
 {
-    public class TopupRepository : ITopupRepository
+    public class TopupRepository : BaseRepository, ITopupRepository
     {
-        public async Task<List<TopupOption>> GetTopupOptionsAsync()
+        private readonly DbContext _dbContext;
+        public TopupRepository(DbContext dbContext) : base(dbContext)
         {
-            // simulate getting topup options from a database
-            return new List<TopupOption>
-                {
-                    new TopupOption
-                    {
-                        Name = "AED5",
-                        Amount = 5
-                    },
-                    new TopupOption
-                    {
-                        Name = "AED20",
-                        Amount = 20
-                    },
-                    new TopupOption
-                    {
-                        Name = "AED30",
-                        Amount = 30
-                    },
-                    new TopupOption
-                    {
-                        Name = "AED50",
-                        Amount = 50
-                    },
-                    new TopupOption
-                    {
-                        Name = "AED75",
-                        Amount = 75
-                    },
-                    new TopupOption
-                    {
-                        Name = "AED100",
-                        Amount = 100
-                    }
-                };
+            this._dbContext = dbContext;
+        }
+
+        public async Task<IEnumerable<TopupOption>> GetTopupOptionsAsync()
+        {
+            return await base.GetAllAsync<TopupOption>();
         }
 
         public async Task<decimal> GetTotalTopupAmountAsync(string phone, int month, int year, string? beneficiryPhoneNumber = null)
         {
-           // simulate getting total topup amount from a database
-           // benefitiaryPhoneNumber is optional and will be used to get the total topup amount for a specific beneficiary
-           Random random = new Random();
-           // generate a random number between 1 and 3000
-           decimal total = random.Next(1, 3001);
+            var query = _dbContext.Set<TopupHistory>().AsQueryable();
 
-           return total;
+            if (phone == null)
+            {
+                throw new ArgumentNullException(nameof(phone));
+            }
+
+            query = query.Where(b => b.UserPhoneNumber == phone);
+
+            query = query.Where(b => b.Date.Month == month && b.Date.Year == year);
+
+            if (beneficiryPhoneNumber != null)
+            {
+                query = query.Where(b => b.PhoneNumber == beneficiryPhoneNumber);
+            }
+
+            return await query.SumAsync(b => b.Amount);
         }
 
-        public Task PerformPopupTransactionAsync(User user, TopupRequest request)
+        public Task PerformTopupTransactionAsync(User user, TopupRequest request)
         {
-            // simulate performing topup transaction
+            var topupHistory = new TopupHistory(request.PhoneNumber, request.Amount, DateTime.UtcNow)
+            {
+                UserPhoneNumber = user.PhoneNumber
+            };
+
+            base.Add(topupHistory);
+
             return Task.CompletedTask;
         }
     }

@@ -1,10 +1,10 @@
-﻿using MobileTopup.Contracts.Models;
+﻿using MobileTopup.Contracts.Domain.Entities;
 
 namespace MobileTopup.API.Repositories
 {
     public interface IUserRepository
     {
-        IEnumerable<User> GetAvailableUsers();
+        Task<IEnumerable<User>> GetAvailableUsersAsync();
         User GetUserByPhoneNumber(string phoneNumber);
     }
 }

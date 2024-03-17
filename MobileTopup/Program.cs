@@ -3,7 +3,7 @@ using FluentValidation;
 using MobileTopup.API.Repositories;
 using MobileTopup.API.Services;
 using MobileTopup.API.Settings;
-using MobileTopup.Contracts.Models;
+using MobileTopup.Contracts.Domain.Entities;
 using MobileTopup.Contracts.Validatiors;
 
 namespace MobileTopup

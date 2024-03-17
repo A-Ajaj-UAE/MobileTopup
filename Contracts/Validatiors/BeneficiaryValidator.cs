@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 using MobileTopup.Contracts.Exceptions;
-using MobileTopup.Contracts.Models;
+using MobileTopup.Contracts.Domain.Entities;
 
 namespace MobileTopup.Contracts.Validatiors
 {

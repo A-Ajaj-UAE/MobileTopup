@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MobileTopup.API.Services;
-using MobileTopup.Contracts.Models;
+using MobileTopup.Contracts.Domain.Entities;
 using MobileTopup.Contracts.Requests;
 using MobileTopup.Contracts.Response;
 

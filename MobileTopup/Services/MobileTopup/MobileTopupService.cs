@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using MobileTopup.API.Repositories;
 using MobileTopup.API.Settings;
-using MobileTopup.Contracts.Models;
+using MobileTopup.Contracts.Domain.Entities;
 using MobileTopup.Contracts.Requests;
 using MobileTopup.Contracts.Response;
 
@@ -132,7 +132,7 @@ namespace MobileTopup.API.Services
         {
             try
             {
-                await _topupRepository.PerformPopupTransactionAsync(user, request);
+                await _topupRepository.PerformTopupTransactionAsync(user, request);
 
                 return new TopupResponse
                 {

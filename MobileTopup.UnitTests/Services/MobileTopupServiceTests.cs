@@ -2,7 +2,7 @@ using Microsoft.Extensions.Options;
 using MobileTopup.API.Repositories;
 using MobileTopup.API.Services;
 using MobileTopup.API.Settings;
-using MobileTopup.Contracts.Models;
+using MobileTopup.Contracts.Domain.Entities;
 
 namespace MobileTopup.UnitTests.Services
 {
