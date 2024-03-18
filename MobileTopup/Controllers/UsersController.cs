@@ -63,7 +63,7 @@ namespace MobileTopup.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error adding user");
-                return BadRequest(ex.Message);
+                throw ex;
             }
         }
 

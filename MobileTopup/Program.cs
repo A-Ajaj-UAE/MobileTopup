@@ -2,6 +2,7 @@
 using FluentValidation;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using MobileTopup.API.Middleware;
 using MobileTopup.API.Repositories;
 using MobileTopup.API.Services;
 using MobileTopup.API.Settings;
@@ -84,6 +85,8 @@ namespace MobileTopup
 
 
             var app = builder.Build();
+
+            app.UseMiddleware<ExceptionHandlerMiddleware>();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())

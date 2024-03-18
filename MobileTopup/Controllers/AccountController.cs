@@ -47,12 +47,14 @@ namespace MobileTopup.API.Controllers
             catch (KeyNotFoundException ex)
             {
                 _logger.LogError(ex, "User not found");
-                return NotFound(ex.Message);
+                //generic handler will return the message
+                throw ex;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting balance");
-                return BadRequest(ex.Message);
+                _logger.LogError(ex, "Error Credit Account");
+                //generic handler will return the message
+                throw ex;
             }
         }
 
@@ -77,12 +79,14 @@ namespace MobileTopup.API.Controllers
             catch (KeyNotFoundException ex)
             {
                 _logger.LogError(ex, "User not found");
-                return NotFound(ex.Message);
+                //generic handler will return the message
+                throw ex;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error Debit Account");
-                return BadRequest(ex.Message);
+                _logger.LogError(ex, "Error Credit Account");
+                //generic handler will return the message
+                throw ex;
             }
         }
 
@@ -107,12 +111,14 @@ namespace MobileTopup.API.Controllers
             catch (KeyNotFoundException ex)
             {
                 _logger.LogError(ex, "User not found");
-                return NotFound(ex.Message);
+                //generic handler will return the message
+                throw ex;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error Credit Account");
-                return BadRequest(ex.Message);
+                //generic handler will return the message
+                throw ex;
             }
         }
     }
