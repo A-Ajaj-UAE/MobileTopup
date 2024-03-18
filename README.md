@@ -6,6 +6,9 @@ This README serves as a guide to understanding the structure and functionality o
 # Project Structure
 API Project: This project contains the services to be consumed by the application. It includes endpoints for managing balances, transactions, and other related functionalities.
 
+# Business Layer
+API Project: This project contains the services to be consumed by the application. It includes services for managing balances, transactions, and other related functionalities.
+
 # Contracts: 
 A shared project containing contracts/interfaces that define the interactions between different services. These contracts facilitate dependency injection and promote loose coupling between components.
 
@@ -18,25 +21,26 @@ Contains test cases to validate different acceptance criteria and ensure the cor
 # HTTP Balance and Debit Service:
 A service created within the API project and consumed via HttpClient. This service handles balance adjustments and debit transactions.
 
-Assumptions and Notes
+# Tools and techniqes
+Repository and MS SQL Server Local Database with Auto Migration: This suggests that the project uses a repository pattern for data access and interacts with a Microsoft SQL Server database. The term "auto migration" likely refers to some automated process for managing database schema changes.
+
+AutoMapper: AutoMapper is a library used in .NET development for object-to-object mapping. It simplifies the process of mapping properties from one object to another.
+
+Middleware for Exception Handler: Middleware refers to software components that are assembled into an application pipeline to handle requests and responses. In this context, the middleware is likely used to intercept and handle exceptions that occur during the execution of the application.
+
+FluentValidation: FluentValidation is a .NET library for building strongly-typed validation rules. It provides a fluent interface for defining validation logic and integrates well with ASP.NET and ASP.NET Core applications.
+
+Unit Tests Covering the Acceptance Criteria: This indicates that the project includes unit tests that verify whether the software meets its acceptance criteria. Unit tests are typically small, focused tests that validate individual components or units of code.
+
+Robust Layered Architecture: A robust layered architecture implies that the project's codebase is organized into distinct layers (e.g., presentation layer, business logic layer, data access layer) to promote modularity, scalability, and maintainability.
+
+Contracts and Database Entities Isolation to Support Microservice Architecture: This suggests that the project is designed with a microservices architecture in mind. Contracts likely refer to interfaces or contracts that define the communication between microservices, and database entities isolation implies that each microservice has its own isolated data storage to maintain separation of concerns and autonomy.
+
+These tools and practices are commonly used in modern software development to improve code quality, maintainability, and scalability.
+
+# Assumptions and Notes
 1- Mistake in Verified and Unverified Max Limit: The task contained errors in the maximum limits for verified and unverified accounts. In the implementation, it was assumed that the maximum limit for verified accounts is 1000, and for unverified accounts, it is 500.
+You may need to run on port 7270 or update the host in appsetting to meet your url.
 
-2-No DB Repository: Due to time constraints, a simulation of the database repository and its structure was implemented. Actual read/write operations are not performed.
-
-3-Additional Endpoint Created: An extra endpoint was created to provide an example of usage or to fulfill specific requirements.
-
-Multiple Tools Used: The project utilizes various tools such as IConfiguration, FluentValidation, UnitTest, and logging for efficient development, validation, and testing.
-
-# Future Improvements
-Refactoring and Separation of Balance Project: The balance-related functionalities can be further separated and refactored into their own dedicated project for better organization and maintainability.
-
-Actual DB Implementation: Implementing an actual database repository and performing real read/write operations would enhance the reliability and scalability of the solution.
-
-More Specific Custom Exceptions and Responses: Enhancing error handling by implementing more specific and custom exceptions, along with informative responses, would improve the user experience and debugging process.
-
-# Test Users
-use the endpoint of admin to get list of users.
-# you need to set the BalanceEndpoint in the appsetting.
-
-Conclusion
+# Conclusion
 This README provides a comprehensive overview of the project structure, assumptions, and potential areas for improvement. It serves as a guide for developers and stakeholders to understand the solution and its future direction.
