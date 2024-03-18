@@ -1,13 +1,16 @@
 
 using FluentValidation;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using MobileTopup.API.Repositories;
 using MobileTopup.API.Services;
 using MobileTopup.API.Settings;
 using MobileTopup.Contracts.Domain.Entities;
+using MobileTopup.Contracts.MappingProfile;
+using MobileTopup.Contracts.Requests;
 using MobileTopup.Contracts.Validatiors;
 using MobileTopup.Infrastructure;
-using MobileTopup.Infrastructure.Repositories;
+using System.Data;
 
 namespace MobileTopup
 {
@@ -18,7 +21,14 @@ namespace MobileTopup
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-            builder.Services.AddControllers();
+            // ignore json reference loop in add controllers
+            builder.Services.AddControllers().AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+            });
+
+            builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -30,17 +40,28 @@ namespace MobileTopup
             });
 
             //add application db support
+            string connection = builder.Configuration.GetConnectionString("DBConnection");
+            builder.Services.AddTransient<IDbConnection>((sp) => new SqlConnection(connection));
+
             builder.Services.AddDbContext<ApplicationContext>(options =>
             {
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DBConnection"),
-                b => b.MigrationsAssembly("MobileTopup.API"));
+                options.UseSqlServer(connection,
+                sqlServerOptionsAction: sqlOptions =>
+                    {
+                        sqlOptions.MigrationsAssembly("MobileTopup.API");
+                        //Configuring Connection Resiliency: https://docs.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency
+                        sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
+                        sqlOptions.CommandTimeout(180); // Set the command timeout to 180 seconds
+                        ;
+                    });
             });
 
             // Register validators and services
             builder.Services.AddScoped<IValidator<User>, UserValidator>();
-            builder.Services.AddScoped<IValidator<Beneficiary>, BeneficiaryValidator>();
+            builder.Services.AddScoped<IValidator<AddBeneficiaryRequest>, BeneficiaryValidator>();
             builder.Services.AddScoped<IMobileTopupService, MobileTopupService>();
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IAccountService, AccountService>();
 
             // register settings
             builder.Services.Configure<BalanceEndpoint>(builder.Configuration.GetSection("BalanceEndpoint"));
@@ -55,12 +76,12 @@ namespace MobileTopup
             });
 
             //register repositories
-
-            builder.Services.AddTransient<DbContext, ApplicationContext>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<ITopupRepository, TopupRepository>();
+            builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 
-       
+            
+
 
             var app = builder.Build();
 

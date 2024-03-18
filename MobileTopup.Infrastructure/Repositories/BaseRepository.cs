@@ -7,46 +7,47 @@ using System.Threading.Tasks;
 
 namespace MobileTopup.Infrastructure.Repositories
 {
-    public abstract class BaseRepository
+    public abstract class BaseRepository<TEntity> : IBaseRepository<TEntity>
+        where TEntity : class
     {
-        protected DbContext dbContext;
+        private readonly ApplicationContext dbContext;
 
-        public BaseRepository(DbContext dbContext)
+        public BaseRepository(ApplicationContext dbContext)
         {
             this.dbContext = dbContext;
         }
 
         // Abstract implementation for GetAll<T> method
-        public virtual async Task<IEnumerable<T>> GetAllAsync<T>() where T : class
+        public virtual List<TEntity> GetAll()
         {
-            return await dbContext.Set<T>().ToListAsync();
+            return dbContext.Set<TEntity>().AsNoTracking().ToList();
         }
 
         // Abstract implementation for GetById<T> method
-        public virtual async Task<T> GetById<T>(int id) where T : class
+        public virtual TEntity GetById(int id) 
         {
-            return await dbContext.Set<T>().FindAsync(id);
+            return dbContext.Set<TEntity>().Find(id);
         }
 
         // Abstract implementation for Add<T> method
-        public virtual void Add<T>(T entity) where T : class
+        public virtual void Add(TEntity entity)
         {
-            dbContext.Set<T>().Add(entity);
+            dbContext.Set<TEntity>().Add(entity);
             dbContext.SaveChanges();
         }
 
         // Abstract implementation for Update<T> method
-        public virtual void Update<T>(T entity) where T : class
+        public virtual void Update(TEntity entity)
         {
-            dbContext.Set<T>().Update(entity);
+            dbContext.Set<TEntity>().Update(entity);
             dbContext.SaveChanges();
 
         }
 
         // Abstract implementation for Delete<T> method
-        public virtual void Delete<T>(T entity) where T : class
+        public virtual void Delete(TEntity entity) 
         {
-            dbContext.Set<T>().Remove(entity);
+            dbContext.Set<TEntity>().Remove(entity);
             dbContext.SaveChanges();
         }
 

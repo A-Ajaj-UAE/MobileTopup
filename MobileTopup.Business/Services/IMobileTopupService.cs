@@ -16,6 +16,6 @@ namespace MobileTopup.API.Services
         /// <param name="user"></param>
         /// <param name="request"></param>
         /// <returns></returns>
-        Task<TopupResponse> TopupBeneficiary(User user, TopupRequest request);
+        TopupResponse TopupBeneficiary(User user, TopupRequest request);
     }
 }

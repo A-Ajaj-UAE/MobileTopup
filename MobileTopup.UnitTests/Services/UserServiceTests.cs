@@ -5,6 +5,8 @@ using MobileTopup.API.Services;
 using MobileTopup.Contracts.Exceptions;
 using MobileTopup.Contracts.Domain.Entities;
 using MobileTopup.Contracts.Validatiors;
+using MobileTopup.Contracts.Requests;
+using AutoMapper;
 
 namespace MobileTopup.UnitTests.Services
 {
@@ -14,6 +16,7 @@ namespace MobileTopup.UnitTests.Services
         private readonly Mock<UserRepository> _userRepository;
         private readonly Mock<HttpClient> httpClient;   
         private readonly Mock<ILogger<UserService>> logger;   
+        private readonly Mock<IMapper> mapper;   
 
         public UserServiceTest()
         {
@@ -22,7 +25,8 @@ namespace MobileTopup.UnitTests.Services
             _userRepository = new Mock<UserRepository>();
             httpClient = new Mock<HttpClient>();
             logger = new Mock<ILogger<UserService>>();
-            _userService = new UserService(_userRepository.Object,BenficiaryValidator, userValidator, httpClient.Object, logger.Object);
+            mapper = new Mock<IMapper>();
+            _userService = new UserService(_userRepository.Object,BenficiaryValidator, userValidator, httpClient.Object, logger.Object, mapper.Object);
         }
 
 
@@ -39,10 +43,11 @@ namespace MobileTopup.UnitTests.Services
                 new Beneficiary("Beneficiary 4",true),
             };
 
-            var beneficiary = new Beneficiary("Beneficiary 5", true);
+            var beneficiaryRequst = new AddBeneficiaryRequest { NickName = "Beneficiary 5", IsActive = true };
+            var beneficiary = new Beneficiary { NickName = "Beneficiary 5", IsActive = true };
 
             // Act
-            _userService.AddBeneficiary(user, beneficiary);
+            _userService.AddBeneficiary(user, beneficiaryRequst);
        
             // Assert
             Assert.Contains(beneficiary, user.Beneficiaries);
@@ -62,10 +67,11 @@ namespace MobileTopup.UnitTests.Services
                 new Beneficiary("Beneficiary 5",true) 
             };
 
-            var beneficiary = new Beneficiary ("Beneficiary 6",true);
+            var beneficiaryRequst = new AddBeneficiaryRequest { NickName = "Beneficiary 6", IsActive = true };
+            var beneficiary = new Beneficiary { NickName = "Beneficiary 6", IsActive = true };
 
             // Act & Assert
-            var exception = Assert.Throws<ValidationException>(() => _userService.AddBeneficiary(user, beneficiary));
+            var exception = Assert.Throws<ValidationException>(() => _userService.AddBeneficiary(user, beneficiaryRequst));
             Assert.IsType(typeof(ValidationException), exception);
             Assert.Contains(BeneficiaryExceptions.MaxActiveBenfenciryExceeded, exception.Errors.Select(e=> e.ErrorMessage));
         }
@@ -77,10 +83,10 @@ namespace MobileTopup.UnitTests.Services
             var user = new User { IsVerified = true };
             user.Beneficiaries = new List<Beneficiary>();
 
-            var beneficiary = new Beneficiary("Beneficiary more than 20 chars", true);
+            var beneficiaryRequst = new AddBeneficiaryRequest { NickName = "Beneficiary more than 20 chars", IsActive = true };
 
             // Act & Assert
-            var exception = Assert.Throws<ValidationException>(() => _userService.AddBeneficiary(user, beneficiary));
+            var exception = Assert.Throws<ValidationException>(() => _userService.AddBeneficiary(user, beneficiaryRequst));
             Assert.IsType(typeof(ValidationException), exception);
             Assert.Contains(BeneficiaryExceptions.BenefenciryNickNameLenghtExceeded, exception.Errors.Select(e=> e.ErrorMessage));
         }
@@ -92,7 +98,7 @@ namespace MobileTopup.UnitTests.Services
             var user = new User { IsVerified = false };
             user.Beneficiaries = new List<Beneficiary>();
 
-            var beneficiary = new Beneficiary("Beneficiary 1", true);
+            var beneficiary = new AddBeneficiaryRequest{ NickName = "Beneficiary 1", IsActive = true };
 
             // Act
             _userService.AddBeneficiary(user, beneficiary);
