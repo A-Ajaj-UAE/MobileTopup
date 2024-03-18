@@ -11,7 +11,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{65A54B3C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MobileTopup.Contracts", "Contracts\MobileTopup.Contracts.csproj", "{4E21ABE3-7ED5-4DD2-9837-38978E11AF68}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MobileTopup.Infrastructure", "MobileTopup.Infrastructure\MobileTopup.Infrastructure.csproj", "{168DD0AC-92FB-4BF8-B19F-510880EDEE42}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MobileTopup.Infrastructure", "MobileTopup.Infrastructure\MobileTopup.Infrastructure.csproj", "{168DD0AC-92FB-4BF8-B19F-510880EDEE42}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MobileTopup.Business", "MobileTopup.Business\MobileTopup.Business.csproj", "{540B0690-0ED3-4372-900B-17EFC94111EE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,6 +37,10 @@ Global
 		{168DD0AC-92FB-4BF8-B19F-510880EDEE42}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{168DD0AC-92FB-4BF8-B19F-510880EDEE42}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{168DD0AC-92FB-4BF8-B19F-510880EDEE42}.Release|Any CPU.Build.0 = Release|Any CPU
+		{540B0690-0ED3-4372-900B-17EFC94111EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{540B0690-0ED3-4372-900B-17EFC94111EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{540B0690-0ED3-4372-900B-17EFC94111EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{540B0690-0ED3-4372-900B-17EFC94111EE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

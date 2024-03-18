@@ -1,4 +1,6 @@
-﻿using MobileTopup.Contracts.Models;
+﻿using MobileTopup.Contracts.Domain.Entities;
+using MobileTopup.Contracts.Requests;
+using MobileTopup.Contracts.Response;
 
 namespace MobileTopup.API.Services
 {
@@ -15,38 +17,43 @@ namespace MobileTopup.API.Services
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        IEnumerable<Beneficiary> GetAvailableBeneficiaries(User user);
+        IEnumerable<BeneficiaryResponse> GetAvailableBeneficiaries(User user);
         /// <summary>
         /// add beneficiary to user
         /// </summary>
         /// <param name="user"></param>
         /// <param name="beneficiary"></param>
         /// <returns></returns>
-        Beneficiary AddBeneficiary(User user, Beneficiary beneficiary);
+        BeneficiaryResponse AddBeneficiary(User user, AddBeneficiaryRequest beneficiary);
         /// <summary>
         /// get user balance
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        Task<Account> GetUserBalanceAsync(User user);
+        Task<AccountResponse> GetUserBalanceAsync(User user);
         /// <summary>
         /// debit user account
         /// </summary>
         /// <param name="user"></param>
         /// <param name="amount"></param>
         /// <returns></returns>
-        Task<Account> DebitUserAsync(User user, decimal amount);
+        Task<BalanceChangeResponse> DebitUserAsync(User user, decimal amount);
         /// <summary>
         /// credit user account
         /// </summary>
         /// <param name="user"></param>
         /// <param name="amount"></param>
         /// <returns></returns>
-        Task<Account> CreditUserAsync(User user, decimal amount);
+        Task<BalanceChangeResponse> CreditUserAsync(User user, decimal amount);
         /// <summary>
         /// get available users
         /// </summary>
         /// <returns></returns>
-        IEnumerable<User> GetAvailableUsers();
+        Task<IEnumerable<UserResponse>> GetAvailableUsersAsync();
+        /// <summary>
+        /// add user
+        /// </summary>
+        /// <param name="user"></param>
+        UserResponse AddUser(CreateUserRequest user);
     }
 }

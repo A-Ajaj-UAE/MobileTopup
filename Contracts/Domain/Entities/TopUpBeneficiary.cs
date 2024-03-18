@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace MobileTopup.Contracts.Models
+namespace MobileTopup.Contracts.Domain.Entities
 {
     public class Beneficiary
     {
@@ -9,17 +9,20 @@ namespace MobileTopup.Contracts.Models
         {
             IsActive = isActive;
             NickName = phone;
-            Phone = phone;
+            PhoneNumber = phone;
         }
 
         public Beneficiary(bool isActive, string nickName, string phone)
         {
             IsActive = isActive;
             NickName = nickName;
-            Phone = phone;
+            PhoneNumber = phone;
         }
+        public int Id { get; set; }
         public string NickName { get; set; }
-        public string Phone { get; set; }
+        public string PhoneNumber { get; set; }
         public bool IsActive { get; set; }
+        public User User { get; set; }
+        public int UserId { get; set; }
     }
 }

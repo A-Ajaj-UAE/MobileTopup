@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MobileTopup.Contracts.Models;
+using MobileTopup.API.Services;
 using MobileTopup.Contracts.Requests;
 using MobileTopup.Contracts.Response;
 using MobileTopup.Controllers;
@@ -15,30 +15,46 @@ namespace MobileTopup.API.Controllers
     public class AccountController : ControllerBase
     {
         private readonly ILogger<TopupController> _logger;
-        public AccountController(ILogger<TopupController> logger)
+        private readonly IAccountService accountService;
+        private readonly IUserService userService;
+
+        public AccountController(ILogger<TopupController> logger,
+            IAccountService accountService,
+            IUserService userService)
         {
             _logger = logger;
+            this.accountService = accountService;
+            this.userService = userService;
         }
 
         [HttpGet("{phone}/balance")]
-        [ProducesResponseType(typeof(Account), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AccountResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public ActionResult Get([FromRoute] string phone)
         {
             try
             {
-               return Ok(new Account { Balance = 5000 });
+                var user = userService.GetUserByPhoneNumber(phone);
+
+                if (user == null)
+                    throw new KeyNotFoundException("User not found");
+
+                var account = accountService.GetBalance(user);
+
+                return Ok(account);
             }
             catch (KeyNotFoundException ex)
             {
                 _logger.LogError(ex, "User not found");
-                return NotFound(ex.Message);
+                //generic handler will return the message
+                throw ex;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting balance");
-                return BadRequest(ex.Message);
+                _logger.LogError(ex, "Error Credit Account");
+                //generic handler will return the message
+                throw ex;
             }
         }
 
@@ -51,24 +67,26 @@ namespace MobileTopup.API.Controllers
         {
             try
             {
-                //simulate credit account
-                decimal balance = 5000;
+                var user = userService.GetUserByPhoneNumber(phone);
 
-                if (balance - request.Amount < 0)
-                    throw new Exception("insufficient fund");
+                if (user == null)
+                    throw new KeyNotFoundException("User not found");
 
-                var response = new BalanceChangeResponse { OldBalance = balance, NewBalance = balance - request.Amount };
+                var response = accountService.Debit(user, request);
+
                 return Ok(response);
             }
             catch (KeyNotFoundException ex)
             {
                 _logger.LogError(ex, "User not found");
-                return NotFound(ex.Message);
+                //generic handler will return the message
+                throw ex;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error Debit Account");
-                return BadRequest(ex.Message);
+                _logger.LogError(ex, "Error Credit Account");
+                //generic handler will return the message
+                throw ex;
             }
         }
 
@@ -81,20 +99,26 @@ namespace MobileTopup.API.Controllers
         {
             try
             {
-                //simulate credit account
-                decimal balance = 5000;
-                var response = new BalanceChangeResponse { OldBalance = balance, NewBalance = balance + request.Amount };
+                var user = userService.GetUserByPhoneNumber(phone);
+
+                if (user == null)
+                    throw new KeyNotFoundException("User not found");
+
+                var response = accountService.Credit(user, request);
+
                 return Ok(response);
             }
             catch (KeyNotFoundException ex)
             {
                 _logger.LogError(ex, "User not found");
-                return NotFound(ex.Message);
+                //generic handler will return the message
+                throw ex;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error Credit Account");
-                return BadRequest(ex.Message);
+                //generic handler will return the message
+                throw ex;
             }
         }
     }

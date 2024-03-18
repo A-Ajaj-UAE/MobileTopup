@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MobileTopup.API.Services;
-using MobileTopup.Contracts.Models;
+using MobileTopup.Contracts.Domain.Entities;
 using MobileTopup.Contracts.Requests;
 using MobileTopup.Contracts.Response;
 
@@ -28,10 +28,10 @@ namespace MobileTopup.Controllers
         /// <param name="phone"></param>
         /// <response code="200">List of beneficiaries</response>
         [HttpGet("{phone}/beneficiaries")]
-        [ProducesResponseType(typeof(IEnumerable<Beneficiary>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IEnumerable<BeneficiaryResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-        public ActionResult<IEnumerable<Beneficiary>> Get([FromRoute] string phone)
+        public ActionResult<IEnumerable<BeneficiaryResponse>> Get([FromRoute] string phone)
         {
             try
             {
@@ -62,11 +62,11 @@ namespace MobileTopup.Controllers
         /// <param name="phone"></param>
         /// <param name="beneficiary"></param>
         /// <returns></returns>
-        [ProducesResponseType(typeof(Beneficiary), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BeneficiaryResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [HttpPost("{phone}/add-beneficiary")]
-        public ActionResult<Beneficiary> Add([FromRoute] string phone, Beneficiary beneficiary)
+        public ActionResult<BeneficiaryResponse> Add([FromRoute] string phone, AddBeneficiaryRequest beneficiary)
         {
             try
             {
@@ -96,11 +96,11 @@ namespace MobileTopup.Controllers
         [HttpGet("topup-options")]
         [ProducesResponseType(typeof(IEnumerable<TopupOption>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-        public ActionResult<IEnumerable<TopupOption>> AvailableOptions()
+        public async Task<ActionResult<IEnumerable<TopupOption>>> AvailableOptions()
         {
             try
             {
-                var response = topupService.GetAvailableTopupOptions();
+                var response = await topupService.GetAvailableTopupOptions();
 
                 return Ok(response);
             }
@@ -127,33 +127,6 @@ namespace MobileTopup.Controllers
                     return NotFound();
 
                 var response = topupService.TopupBeneficiary(user, request);
-
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-
-        /// <summary>
-        /// fetch available topup options
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet("{phone}/get-balance")]
-        [ProducesResponseType(typeof(Account), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-        public  async Task<ActionResult<Account>> GetAccountAsync([FromRoute] string phone)
-        {
-            try
-            {
-                var user = userService.GetUserByPhoneNumber(phone);
-
-                if (user == null)
-                    return NotFound();
-
-                var response = await userService.GetUserBalanceAsync(user);
 
                 return Ok(response);
             }

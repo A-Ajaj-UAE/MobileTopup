@@ -1,63 +1,80 @@
-﻿using MobileTopup.Contracts.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using MobileTopup.Contracts.Domain.Entities;
 using MobileTopup.Contracts.Requests;
+using MobileTopup.Infrastructure;
 
 namespace MobileTopup.API.Repositories
 {
-    public class TopupRepository : ITopupRepository
+    public class TopupRepository :  ITopupRepository
     {
+        private readonly ApplicationContext _dbContext;
+        public TopupRepository(ApplicationContext dbContext) 
+        {
+            this._dbContext = dbContext;
+        }
+
+        public void Add(TopupHistory entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Delete(TopupHistory entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<TopupHistory> GetAll()
+        {
+            throw new NotImplementedException();
+        }
+
+        public TopupHistory GetById(int id)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<List<TopupOption>> GetTopupOptionsAsync()
         {
-            // simulate getting topup options from a database
-            return new List<TopupOption>
-                {
-                    new TopupOption
-                    {
-                        Name = "AED5",
-                        Amount = 5
-                    },
-                    new TopupOption
-                    {
-                        Name = "AED20",
-                        Amount = 20
-                    },
-                    new TopupOption
-                    {
-                        Name = "AED30",
-                        Amount = 30
-                    },
-                    new TopupOption
-                    {
-                        Name = "AED50",
-                        Amount = 50
-                    },
-                    new TopupOption
-                    {
-                        Name = "AED75",
-                        Amount = 75
-                    },
-                    new TopupOption
-                    {
-                        Name = "AED100",
-                        Amount = 100
-                    }
-                };
+            return await _dbContext.TopupOptions.AsNoTracking().ToListAsync();
         }
 
-        public async Task<decimal> GetTotalTopupAmountAsync(string phone, int month, int year, string? beneficiryPhoneNumber = null)
+        public decimal GetTotalTopupAmountAsync(string phone, int month, int year, string? beneficiryPhoneNumber = null)
         {
-           // simulate getting total topup amount from a database
-           // benefitiaryPhoneNumber is optional and will be used to get the total topup amount for a specific beneficiary
-           Random random = new Random();
-           // generate a random number between 1 and 3000
-           decimal total = random.Next(1, 3001);
+            if (phone == null)
+            {
+                throw new ArgumentNullException(nameof(phone));
+            }
 
-           return total;
+            var query = _dbContext.TopupHistories.AsQueryable();
+
+            query = query.Where(b => b.User.PhoneNumber == phone);
+
+            query = query.Where(b => b.Date.Month == month && b.Date.Year == year);
+
+            if (beneficiryPhoneNumber != null)
+            {
+                query = query.Where(b => b.PhoneNumber == beneficiryPhoneNumber);
+            }
+
+            return  query.Sum(b => b.Amount);
         }
 
-        public Task PerformPopupTransactionAsync(User user, TopupRequest request)
+        public Task PerformTopupTransactionAsync(User user, TopupRequest request)
         {
-            // simulate performing topup transaction
+            var topupHistory = new TopupHistory(request.PhoneNumber, request.Amount, DateTime.UtcNow)
+            {
+                UserId = user.Id
+            };
+
+            _dbContext.TopupHistories.Add(topupHistory);
+            _dbContext.SaveChanges();
+
             return Task.CompletedTask;
+        }
+
+        public void Update(TopupHistory entity)
+        {
+            throw new NotImplementedException();
         }
     }
 }

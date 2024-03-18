@@ -1,98 +1,64 @@
-﻿using MobileTopup.Contracts.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using MobileTopup.Contracts.Domain.Entities;
+using MobileTopup.Infrastructure;
+using MobileTopup.Infrastructure.Repositories;
 
 namespace MobileTopup.API.Repositories
 {
     public class UserRepository : IUserRepository
     {
-        public IEnumerable<User> GetAvailableUsers()
+        private readonly ApplicationContext dbContext;
+        public UserRepository(ApplicationContext dbContext) 
         {
-            //simulate users in db
-            return new List<User>
-            {
-                new User
-                {
-                    PhoneNumber = "1234567890",
-                    Name = "John Doe",
-                    Remark = "This is active user for active beneficiry",
-                    IsVerified = true,
-                    Beneficiaries = new List<Beneficiary>
-                    {
-                        new Beneficiary
-                        {
-                            NickName = "Jane Doe",
-                            Phone = "1234567890",
-                            IsActive = true
-                        }
-                    }
-                },
-                new User
-                {
-                    PhoneNumber = "1234567891",
-                    Name = "Max Doe",
-                    Remark = "This is inactive user for inactive beneficiry",
-                    IsVerified = false,
-                    Beneficiaries = new List<Beneficiary>
-                    {
-                        new Beneficiary
-                        {
-                            NickName = "John Doe",
-                            Phone = "0987654321",
-                            IsActive = false
-                        }
-                    }
-                },
-                new User
-                {
-                    PhoneNumber = "1234567892",
-                    Name = "Max Doe",
-                    Remark = "This is active user for max active beneficiry",
-                    IsVerified = true,
-                    Beneficiaries = new List<Beneficiary>
-                    {
-                        new Beneficiary
-                        {
-                            NickName = "John Doe",
-                            Phone = "0987654321",
-                            IsActive = true
-                        },
-                         new Beneficiary
-                        {
-                            NickName = "John Doe",
-                            Phone = "0987654321",
-                            IsActive = true
-                        },
-                          new Beneficiary
-                        {
-                            NickName = "John Doe",
-                            Phone = "0987654321",
-                            IsActive = true
-                        }, new Beneficiary
-                        {
-                            NickName = "John Doe",
-                            Phone = "0987654321",
-                            IsActive = true
-                        }, new Beneficiary
-                        {
-                            NickName = "John Doe",
-                            Phone = "0987654321",
-                            IsActive = true
-                        }
-                    }
-                }
-            };
+            this.dbContext = dbContext;
+        }
+
+        public List<User> GetAll()
+        {
+            return dbContext.Users.AsNoTracking().ToList();
+        }
+
+        public User GetById(int id)
+        {
+            return dbContext.Users.Find(id);
+        }
+
+        public void Add(User user)
+        {
+            dbContext.Add(user);
+            dbContext.SaveChanges();
+        }
+        public void Update(User user)
+        {
+            dbContext.Update(user);
+            dbContext.SaveChanges();
+        }
+
+        public void Delete(User entity)
+        {
+            dbContext.Remove(entity);
+            dbContext.SaveChanges();
+        }
+
+        public Task<IEnumerable<User>> GetAvailableUsersAsync()
+        {
+            var users = GetAll();
+
+            return Task.FromResult<IEnumerable<User>>(users);
         }
 
         public User GetUserByPhoneNumber(string phoneNumber)
         {
-            //simulate users from db;
-            var users = GetAvailableUsers();
-
-            var user = users.FirstOrDefault(x => x.PhoneNumber == phoneNumber);
+           var user = dbContext.Users
+                .Include(u => u.Beneficiaries)
+                .FirstOrDefault(u => u.PhoneNumber == phoneNumber);
 
             if (user == null)
                 throw new KeyNotFoundException("User not found");
 
             return user;    
         }
+
+        
     }
 }

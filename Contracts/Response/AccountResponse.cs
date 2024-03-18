@@ -4,10 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MobileTopup.Contracts.Models
+namespace MobileTopup.Contracts.Response
 {
-    public class Account
+    public class AccountResponse
     {
+        public int Id { get; set; }
+        public string PhoneNumber { get; set; }
         public decimal Balance { get; set; }
     }
 }

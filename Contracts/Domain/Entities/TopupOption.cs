@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MobileTopup.Contracts.Models
+namespace MobileTopup.Contracts.Domain.Entities
 {
     public class TopupOption
     {
@@ -17,6 +17,7 @@ namespace MobileTopup.Contracts.Models
             Name = name;
             Amount = amount;
         }
+        public int Id { get; set; }
         public string Name { get; set; }
         public decimal Amount { get; set; }
     }

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using MobileTopup.API.Services;
-using MobileTopup.Contracts.Models;
+using MobileTopup.Contracts.Domain.Entities;
+using MobileTopup.Contracts.Requests;
 using MobileTopup.Contracts.Response;
 
 namespace MobileTopup.Controllers
@@ -24,14 +25,14 @@ namespace MobileTopup.Controllers
         /// <param name="phone"></param>
         /// <response code="200">List of beneficiaries</response>
         [HttpGet("list")]
-        [ProducesResponseType(typeof(IEnumerable<User>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(List<UserResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-        public ActionResult<IEnumerable<Beneficiary>> Get()
+        public async Task<ActionResult<List<UserResponse>>> GetAsync()
         {
             try
             {
-                var users = userService.GetAvailableUsers();
+                var users = await userService.GetAvailableUsersAsync();
 
                 return Ok(users);
             }
@@ -46,5 +47,25 @@ namespace MobileTopup.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        //create new user
+        [HttpPost("add")]
+        [ProducesResponseType(typeof(List<UserResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        public ActionResult<UserResponse> Post(CreateUserRequest request)
+        {
+            try
+            {
+                var user = userService.AddUser(request);
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error adding user");
+                throw ex;
+            }
+        }
+
     }
 }

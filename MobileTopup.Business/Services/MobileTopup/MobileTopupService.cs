@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using MobileTopup.API.Repositories;
 using MobileTopup.API.Settings;
-using MobileTopup.Contracts.Models;
+using MobileTopup.Contracts.Domain.Entities;
 using MobileTopup.Contracts.Requests;
 using MobileTopup.Contracts.Response;
 
@@ -13,7 +13,6 @@ namespace MobileTopup.API.Services
         private readonly ITopupRepository _topupRepository;
         private readonly TopupSettings _topupSettings;
 
-        //the transaction fee is 1 as per the requirement
         private readonly decimal TransactionFee;
         private readonly decimal UnverifiedMaxBeneficiryAmount;
         private readonly decimal VerifiedMaxBeneficiryAmount;
@@ -46,18 +45,24 @@ namespace MobileTopup.API.Services
             return options;
         }
 
-        public async Task<TopupResponse> TopupBeneficiary(User user, TopupRequest request)
+        public TopupResponse TopupBeneficiary(User user, TopupRequest request)
         {
+            //validate request belong to the available topup options
+            ValidateTopupAmount(request).Wait();
+
+            //validate topup beneficiary is availabe in user beneficiaries and its active
+            ValidateBeneficiaryIsActive(user, request);
+
             // Step 1: Check if the total top-up amount for all beneficiaries exceeds the limit
-            decimal totalTopupAmount = await GetTotalTopupAmountCurrentMonthAsync(user);
+            decimal totalTopupAmount = GetTotalTopupAmountCurrentMonthAsync(user);
             ValidateMaxTopupAmountAllBeneficiaries(request.Amount, totalTopupAmount);
 
             // Step 2: Determine the top-up amount based on the user's verification status
-            var totalBeneficiaryTopupAmount = await GetTotalTopupAmountCurrentMonthAsync(user, request.PhoneNumber);
+            var totalBeneficiaryTopupAmount = GetTotalTopupAmountCurrentMonthAsync(user, request.PhoneNumber);
             ValidateMaxTopupAmount(request.Amount, user.IsVerified, totalBeneficiaryTopupAmount);
 
             // Step 3: Get the user's balance from the external HTTP service
-            var account = await GetUserBalanceAsync(user);
+            var account =  GetUserBalanceAsync(user).Result;
 
             // Step 4: Check if the user's balance is sufficient for the top-up
             var topupAmount = request.Amount + TransactionFee;
@@ -65,14 +70,17 @@ namespace MobileTopup.API.Services
 
             // Step 5: Debit the user's balance
             // will throw exception for any error
-            await DebitUserBalanceAsync(user, topupAmount);
+            DebitUserBalanceAsync(user, topupAmount).Wait();
 
             // Step 6: Perform the top-up transaction
-            var topupResponse = await PerformTopupTransactionAsync(user, request);
+            _topupRepository.PerformTopupTransactionAsync(user, request).Wait();
 
             // Step 7: Return the top-up result
-            return topupResponse;
+            return new TopupResponse { Amount = request.Amount , PhoneNumber = request.PhoneNumber, Date = DateTime.Now };
+            
         }
+
+
         #endregion
 
         #region validation  
@@ -103,36 +111,51 @@ namespace MobileTopup.API.Services
             }
         }
 
+        public void ValidateBeneficiaryIsActive(User user, TopupRequest request)
+        {
+            var beneficiaries = _userService.GetAvailableBeneficiaries(user);
+            var beneficiary = beneficiaries.FirstOrDefault(x => x.PhoneNumber == request.PhoneNumber && x.IsActive);
+            if (beneficiary == null)
+                throw new Exception("Beneficiary not found or not active");
+        }
+
+        public async Task ValidateTopupAmount(TopupRequest request)
+        {
+            var topupOptions = await GetAvailableTopupOptions();
+            if (!topupOptions.Any(x => x.Amount == request.Amount))
+                throw new Exception("Invalid top-up amount");
+        }
+
         #endregion
 
         #region private
-        private async Task<decimal> GetTotalTopupAmountCurrentMonthAsync(User user, string? phoneNumner = null)
+        private decimal GetTotalTopupAmountCurrentMonthAsync(User user, string? phoneNumner = null)
         {
             // assume the client is in the same time zone as the server
             var month = DateTime.Now.Month;
             var year = DateTime.Now.Year;
-            var total = await _topupRepository.GetTotalTopupAmountAsync(user.PhoneNumber, month, year, phoneNumner);
+            var total = _topupRepository.GetTotalTopupAmountAsync(user.PhoneNumber, month, year, phoneNumner);
 
             return total;
         }
-        private async Task<Account> GetUserBalanceAsync(User user)
+        private async Task<AccountResponse> GetUserBalanceAsync(User user)
         {
             //Implement the logic to retrieve the user's balance from the external HTTP service
             var account = await _userService.GetUserBalanceAsync(user);
 
             return account;
         }
-        private async Task<Account> DebitUserBalanceAsync(User user, decimal amount)
+        private async Task<BalanceChangeResponse> DebitUserBalanceAsync(User user, decimal amount)
         {
-            var account = await _userService.DebitUserAsync(user, amount);
+            var balanceChangeResponse = await _userService.DebitUserAsync(user, amount);
 
-            return account;
+            return balanceChangeResponse;
         }
         private async Task<TopupResponse> PerformTopupTransactionAsync(User user, TopupRequest request)
         {
             try
             {
-                await _topupRepository.PerformPopupTransactionAsync(user, request);
+                await _topupRepository.PerformTopupTransactionAsync(user, request);
 
                 return new TopupResponse
                 {
@@ -146,6 +169,7 @@ namespace MobileTopup.API.Services
                 throw new Exception("Error performing top-up transaction", ex);
             }
         }
+        
         #endregion
     }
 }
